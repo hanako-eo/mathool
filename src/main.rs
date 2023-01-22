@@ -2,6 +2,7 @@ use app::App;
 use eframe::NativeOptions;
 
 mod app;
+mod style;
 
 fn main() {
     let options = NativeOptions::default();
