@@ -3,6 +3,7 @@ use eframe::NativeOptions;
 
 mod app;
 mod style;
+mod widgets;
 
 fn main() {
     let options = NativeOptions::default();

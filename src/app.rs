@@ -1,18 +1,37 @@
 use std::{
     fs::File,
     io::{BufReader, Read},
+    ops::RangeFull,
 };
 
 use eframe::{
-    egui::{CentralPanel, Context, FontData, FontDefinitions},
-    epaint::{FontFamily, FontId},
+    egui::{
+        plot::{Line, Plot, PlotPoints},
+        CentralPanel, Context, FontData, FontDefinitions, Layout, SidePanel, TextEdit,
+        TopBottomPanel,
+    },
+    emath::Align,
+    epaint::{FontFamily, FontId, Vec2},
     CreationContext, Frame,
 };
 
-use crate::style::{CustomFont, CustomStyle};
+use crate::{
+    style::{CustomFont, CustomStyle},
+    widgets::selectable_list::SelectableList,
+};
+
+#[derive(Default, PartialEq)]
+enum Tabs {
+    #[default]
+    Graphics,
+    ComplexPlan,
+}
 
 #[derive(Default)]
-pub struct App {}
+pub struct App {
+    tab: Tabs,
+    formula: String,
+}
 
 impl App {
     pub fn new(cc: &CreationContext) -> Self {
@@ -53,13 +72,18 @@ impl App {
 
         fonts
             .families
-            .entry(CustomFont::TextArea.into())
+            .entry(CustomFont::Text.into())
             .or_default()
             .insert(0, "cmunrm".into());
 
         style.text_styles.insert(
+            CustomStyle::SelectableList.into(),
+            FontId::new(16., CustomFont::Text.into()),
+        );
+
+        style.text_styles.insert(
             CustomStyle::TextArea.into(),
-            FontId::new(32., CustomFont::TextArea.into()),
+            FontId::new(24., CustomFont::Text.into()),
         );
 
         ctx.set_fonts(fonts);
@@ -69,8 +93,32 @@ impl App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        TopBottomPanel::top("tabs").show(ctx, |ui| {
+            ui.with_layout(Layout::left_to_right(Align::Min), |ui| {
+                SelectableList::new([
+                    ("Graphics", Tabs::Graphics),
+                    ("Complex Plan", Tabs::ComplexPlan),
+                ])
+                .font(CustomStyle::SelectableList)
+                .show(ui, &mut self.tab);
+            });
+        });
+        SidePanel::left("equations").show(ctx, |ui| {
+            TextEdit::singleline(&mut self.formula)
+                .font(CustomStyle::TextArea)
+                .show(ui);
+        });
         CentralPanel::default().show(ctx, |ui| {
-            ui.label("Hello World!");
+            let Vec2 { x, y } = ui.available_size_before_wrap();
+            let sin: PlotPoints =
+                PlotPoints::from_explicit_callback(|x| x.sin(), RangeFull::default(), 10000);
+
+            let line = Line::new(sin);
+            Plot::new("functions")
+                .width(x)
+                .height(y)
+                .allow_scroll(false)
+                .show(ui, |plot_ui| plot_ui.line(line));
         });
     }
 }

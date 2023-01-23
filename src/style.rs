@@ -6,6 +6,7 @@ use strum::AsRefStr;
 
 #[derive(AsRefStr)]
 pub enum CustomStyle {
+    SelectableList,
     TextArea,
 }
 
@@ -23,7 +24,7 @@ impl From<CustomStyle> for FontSelection {
 
 #[derive(AsRefStr)]
 pub enum CustomFont {
-    TextArea,
+    Text,
 }
 
 impl From<CustomFont> for FontFamily {
