@@ -11,3 +11,9 @@ opt-level = 3
 [dependencies]
 eframe = "0.20.1"
 strum = { version = "0.24", features = ["derive"] }
+lang = { path = "./lang" }
+
+[workspace]
+members = [
+    "lang",
+]
